@@ -1,19 +1,27 @@
+-- Detectar plataforma
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
 -- Criar GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = PlayerGui
 ScreenGui.Name = "EcoHubMiniCityGUI"
 
--- Frame principal (quadrado largura fixa, altura ajustável)
+-- Frame principal (painel)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 60) -- largura maior, altura inicial
+MainFrame.Size = UDim2.new(0, 500, 0, 60)
 MainFrame.Position = UDim2.new(0.5, -250, 0.5, -30)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 
--- Cantos arredondados
 local Corner = Instance.new("UICorner")
 Corner.CornerRadius = UDim.new(0, 10)
 Corner.Parent = MainFrame
@@ -42,14 +50,13 @@ MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 MinimizeBtn.TextSize = 25
 MinimizeBtn.AutoButtonColor = true
 
--- Função minimizar
 local minimized = false
 MinimizeBtn.MouseButton1Click:Connect(function()
     minimized = not minimized
     if minimized then
         MainFrame.Size = UDim2.new(0, 500, 0, 40)
     else
-        MainFrame.Size = UDim2.new(0, 500, 0, 60 + (#MainFrame:GetChildren() - 2) * 40)
+        MainFrame.Size = UDim2.new(0, 500, 0, 60 + (#ButtonContainer:GetChildren() - 2) * 40)
     end
 end)
 
@@ -92,7 +99,7 @@ local function LoadLuaButtons()
     if success and files then
         for _, file in pairs(files) do
             if file:match("%.lua$") then
-                local name = file:match("[^/\\]+%.lua$") -- Pega só o nome do arquivo
+                local name = file:match("[^/\\]+%.lua$")
                 CreateToggleButton(name, function(active)
                     if active then
                         pcall(function()
@@ -105,5 +112,27 @@ local function LoadLuaButtons()
     end
 end
 
--- Carregar botões
 LoadLuaButtons()
+
+-- Botão para mobile
+local MobileBtn
+if isMobile then
+    MobileBtn = Instance.new("ImageButton")
+    MobileBtn.Parent = ScreenGui
+    MobileBtn.Size = UDim2.new(0, 60, 0, 60)
+    MobileBtn.Position = UDim2.new(0, 20, 0, 20)
+    MobileBtn.Image = "https://cdn.discordapp.com/avatars/1373759252417744897/348d8a4a11aca1304951f32cfd166026.png?size=2048"
+    MobileBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    MobileBtn.AutoButtonColor = true
+
+    MobileBtn.MouseButton1Click:Connect(function()
+        MainFrame.Visible = not MainFrame.Visible
+    end)
+else
+    -- PC: abrir/fechar com K
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if not processed and input.KeyCode == Enum.KeyCode.K then
+            MainFrame.Visible = not MainFrame.Visible
+        end
+    end)
+end

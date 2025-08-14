@@ -4,7 +4,7 @@ ScreenGui.Parent = game:GetService("CoreGui")
 
 -- Frame principal
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 400, 0, 400) -- Quadrado
+MainFrame.Size = UDim2.new(0, 400, 0, 400)
 MainFrame.Position = UDim2.new(0.5, -200, 0.5, -200)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 MainFrame.BorderSizePixel = 0
@@ -33,7 +33,7 @@ Shadow.ZIndex = -1
 -- Título
 local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
-Title.Size = UDim2.new(1, -40, 0, 40) -- deixa espaço para o botão minimizar
+Title.Size = UDim2.new(1, -40, 0, 40)
 Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Text = "EcoHub - Mini City V1"
@@ -72,5 +72,3 @@ Line.Size = UDim2.new(1, -20, 0, 2)
 Line.Position = UDim2.new(0, 10, 0, 40)
 Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Line.BorderSizePixel = 0
-
-print("Painel EcoHub - Mini City V1 criado com sucesso!")

@@ -5,7 +5,6 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-
 local PANEL_NAME = "EcoHubMiniCityGUI"
 
 -- Remover painel antigo
@@ -88,28 +87,18 @@ local function CreateToggleButton(name, callback)
     end)
 end
 
--- Carregar botões da pasta botao
-local function LoadLuaButtons()
-    local success, files = pcall(function()
-        return listfiles("botao")
-    end)
-    if success and files then
-        for _, file in pairs(files) do
-            if file:match("%.lua$") then
-                local name = file:match("[^/\\]+%.lua$")
-                CreateToggleButton(name, function(active)
-                    if active then
-                        pcall(function()
-                            loadfile(file)()
-                        end)
-                    end
-                end)
-            end
-        end
+-- Carregar botões direto de botao.lua
+local success, err = pcall(function()
+    if isfile("botao.lua") then
+        loadfile("botao.lua")()
+    else
+        warn("Arquivo botao.lua não encontrado!")
     end
-end
+end)
 
-LoadLuaButtons()
+if not success then
+    warn("Erro ao carregar botao.lua:", err)
+end
 
 -- Tamanhos minimizar/restaurar
 local originalSize = MainFrame.Size

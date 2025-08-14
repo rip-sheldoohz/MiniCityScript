@@ -1,20 +1,15 @@
 -- botao.lua
-
--- Categoria Main
-local CategoryName = "Main"
-
--- Variáveis do Aimbot
 local aimbotActive = false
 local SelectedPlayer = nil
 
--- Criar Frame lateral para jogadores
+-- Frame lateral dentro do painel
 local PlayerFrame = Instance.new("Frame")
 PlayerFrame.Size = UDim2.new(0, 150, 0, 300)
-PlayerFrame.Position = UDim2.new(1, 10, 0, 50) -- ao lado do painel
+PlayerFrame.Position = UDim2.new(1, 10, 0, 50)
 PlayerFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 PlayerFrame.BorderSizePixel = 0
 PlayerFrame.Visible = false
-PlayerFrame.Parent = MainFrame
+PlayerFrame.Parent = _G.MainFrame
 
 local Corner = Instance.new("UICorner")
 Corner.CornerRadius = UDim.new(0, 5)
@@ -30,7 +25,7 @@ Title.Font = Enum.Font.GothamBold
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 18
 
--- Função para atualizar lista de jogadores
+-- Atualiza lista
 local function UpdatePlayerList()
     for _, child in pairs(PlayerFrame:GetChildren()) do
         if child:IsA("TextButton") then
@@ -54,36 +49,27 @@ local function UpdatePlayerList()
 
             btn.MouseButton1Click:Connect(function()
                 SelectedPlayer = plr
-                print("Jogador selecionado:", plr.Name)
-                -- Não foca automaticamente, apenas seleciona
+                print("Selecionado:", plr.Name)
             end)
             YPos = YPos + 35
         end
     end
 end
 
--- Criar botão Aimbot toggle
-CreateToggleButton("Aimbot Legit", function(active)
+-- Toggle Aimbot
+_G.CreateToggleButton("Aimbot Legit", function(active)
     aimbotActive = active
     if active then
         PlayerFrame.Visible = true
         UpdatePlayerList()
-        print("Aimbot ativado")
-        -- Aqui você pode adicionar código que usa SelectedPlayer para mira, mas só quando quiser
         spawn(function()
             while aimbotActive do
                 wait(0.01)
-                if SelectedPlayer and SelectedPlayer.Character and SelectedPlayer.Character:FindFirstChild("Head") then
-                    -- Código para aimbot só quando você quiser
-                    -- Exemplo: apenas print da posição da cabeça
-                    local headPos = SelectedPlayer.Character.Head.Position
-                    -- print("Head position:", headPos)
-                end
+                -- Aqui você pode aplicar a mira quando quiser usando SelectedPlayer
             end
         end)
     else
         PlayerFrame.Visible = false
         SelectedPlayer = nil
-        print("Aimbot desativado")
     end
 end)

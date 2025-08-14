@@ -18,8 +18,8 @@ ScreenGui.Parent = PlayerGui
 ScreenGui.Name = PANEL_NAME
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = isMobile and UDim2.new(0, 250, 0, 250) or UDim2.new(0, 600, 0, 200)
-MainFrame.Position = isMobile and UDim2.new(0.5, -125, 0.5, -125) or UDim2.new(0.5, -300, 0.5, -100)
+MainFrame.Size = isMobile and UDim2.new(0, 250, 0, 250) or UDim2.new(0, 600, 0, 300)
+MainFrame.Position = isMobile and UDim2.new(0.5, -125, 0.5, -125) or UDim2.new(0.5, -300, 0.5, -150)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -62,7 +62,8 @@ MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 MinimizeBtn.TextSize = 25
 MinimizeBtn.AutoButtonColor = true
 
--- ===== Definir CreateToggleButton global =====
+-- ===== Criar função global para botões =====
+_G.MainFrame = MainFrame
 _G.CreateToggleButton = function(name, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = ButtonContainer
@@ -78,11 +79,7 @@ _G.CreateToggleButton = function(name, callback)
     btn.MouseButton1Click:Connect(function()
         toggled = not toggled
         btn.Text = name .. (toggled and " [ON]" or " [OFF]")
-        if toggled then
-            pcall(callback, true)
-        else
-            pcall(callback, false)
-        end
+        pcall(callback, toggled)
     end)
 end
 

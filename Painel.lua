@@ -1,4 +1,4 @@
--- Detectar plataforma
+-- Serviços
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
@@ -6,20 +6,27 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
--- Criar GUI
+local PANEL_NAME = "EcoHubMiniCityGUI"
+
+-- Remover painel antigo
+if PlayerGui:FindFirstChild(PANEL_NAME) then
+    PlayerGui[PANEL_NAME]:Destroy()
+end
+
+-- Criar GUI atualizado
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = PlayerGui
-ScreenGui.Name = "EcoHubMiniCityGUI"
+ScreenGui.Name = PANEL_NAME
 
--- Frame principal (painel)
+-- Frame principal
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 60)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -30)
+MainFrame.Size = isMobile and UDim2.new(0, 250, 0, 250) or UDim2.new(0, 600, 0, 200)
+MainFrame.Position = isMobile and UDim2.new(0.5, -125, 0.5, -125) or UDim2.new(0.5, -300, 0.5, -100)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.Visible = false
+MainFrame.Draggable = not isMobile
+MainFrame.Visible = false -- começa invisível
 MainFrame.Parent = ScreenGui
 
 local Corner = Instance.new("UICorner")
@@ -38,7 +45,14 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 22
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Botão de minimizar
+-- Container para botões
+local ButtonContainer = Instance.new("Frame")
+ButtonContainer.Parent = MainFrame
+ButtonContainer.Size = UDim2.new(1, -20, 1, -50)
+ButtonContainer.Position = UDim2.new(0, 10, 0, 40)
+ButtonContainer.BackgroundTransparency = 1
+
+-- Botão minimizar
 local MinimizeBtn = Instance.new("TextButton")
 MinimizeBtn.Parent = MainFrame
 MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -50,29 +64,12 @@ MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 MinimizeBtn.TextSize = 25
 MinimizeBtn.AutoButtonColor = true
 
-local minimized = false
-MinimizeBtn.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    if minimized then
-        MainFrame.Size = UDim2.new(0, 500, 0, 40)
-    else
-        MainFrame.Size = UDim2.new(0, 500, 0, 60 + (#ButtonContainer:GetChildren() - 2) * 40)
-    end
-end)
-
--- Container para os botões
-local ButtonContainer = Instance.new("Frame")
-ButtonContainer.Parent = MainFrame
-ButtonContainer.Size = UDim2.new(1, -20, 1, -40)
-ButtonContainer.Position = UDim2.new(0, 10, 0, 40)
-ButtonContainer.BackgroundTransparency = 1
-
--- Função para criar botões toggle
+-- Função criar botão toggle
 local function CreateToggleButton(name, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = ButtonContainer
     btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.Position = UDim2.new(0, 0, 0, (#ButtonContainer:GetChildren() * 40))
+    btn.Position = UDim2.new(0, 0, 0, (#ButtonContainer:GetChildren()-1) * 40)
     btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
@@ -91,10 +88,10 @@ local function CreateToggleButton(name, callback)
     end)
 end
 
--- Função para verificar pasta "botao" e criar botões
+-- Carregar botões da pasta botao
 local function LoadLuaButtons()
     local success, files = pcall(function()
-        return listfiles("botao") -- Executor deve suportar listfiles
+        return listfiles("botao")
     end)
     if success and files then
         for _, file in pairs(files) do
@@ -114,10 +111,32 @@ end
 
 LoadLuaButtons()
 
--- Botão para mobile
-local MobileBtn
+-- Tamanhos minimizar/restaurar
+local originalSize = MainFrame.Size
+local minimizedSize = isMobile and UDim2.new(0, 250, 0, 50) or UDim2.new(0, 600, 0, 40)
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        MainFrame.Size = minimizedSize
+        for _, btn in pairs(ButtonContainer:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.Visible = false
+            end
+        end
+    else
+        MainFrame.Size = originalSize
+        for _, btn in pairs(ButtonContainer:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.Visible = true
+            end
+        end
+    end
+end)
+
+-- Controle abrir/fechar
 if isMobile then
-    MobileBtn = Instance.new("ImageButton")
+    local MobileBtn = Instance.new("ImageButton")
     MobileBtn.Parent = ScreenGui
     MobileBtn.Size = UDim2.new(0, 60, 0, 60)
     MobileBtn.Position = UDim2.new(0, 20, 0, 20)
@@ -129,7 +148,7 @@ if isMobile then
         MainFrame.Visible = not MainFrame.Visible
     end)
 else
-    -- PC: abrir/fechar com K
+    -- PC abre/fecha apenas com K
     UserInputService.InputBegan:Connect(function(input, processed)
         if not processed and input.KeyCode == Enum.KeyCode.K then
             MainFrame.Visible = not MainFrame.Visible
